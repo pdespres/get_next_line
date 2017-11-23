@@ -6,7 +6,6 @@ int		main(int ac, char **av)
 	char    *str;
 	int     fd;
 	int		ind;
-	char	buf[BUFF_SIZE + 1];
 	int		ret;
 
 	if (ac != 2)

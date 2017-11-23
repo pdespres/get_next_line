@@ -6,14 +6,12 @@
 /*   By: pdespres <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/11/20 20:58:24 by pdespres          #+#    #+#             */
-/*   Updated: 2017/11/23 17:40:33 by pdespres         ###   ########.fr       */
+/*   Updated: 2017/11/23 18:53:14 by pdespres         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line.h"
 #include <stdio.h>
-
-	// BUFF_SIZE = 0 autorise? sortie actuelle en return(0)
 
 static void		ft_free(void *ptr)
 {
