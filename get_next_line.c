@@ -6,7 +6,7 @@
 /*   By: pdespres <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/11/20 20:58:24 by pdespres          #+#    #+#             */
-/*   Updated: 2017/11/23 18:53:14 by pdespres         ###   ########.fr       */
+/*   Updated: 2017/11/23 19:12:37 by pdespres         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,7 +27,6 @@ static int		readf(const int fd, char **str)
 
 	if (*str == NULL && !(*str = ft_strnew(0)))
 	{
-		printf("malloc de str\n");
 		return (-1);
 	}
 	ret = (int)read(fd, buf, BUFF_SIZE);
