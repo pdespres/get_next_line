@@ -6,12 +6,11 @@
 /*   By: pdespres <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/11/20 20:58:24 by pdespres          #+#    #+#             */
-/*   Updated: 2017/11/23 19:12:37 by pdespres         ###   ########.fr       */
+/*   Updated: 2017/11/24 13:00:05 by pdespres         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line.h"
-#include <stdio.h>
 
 static void		ft_free(void *ptr)
 {
@@ -19,16 +18,35 @@ static void		ft_free(void *ptr)
 	ptr = NULL;
 }
 
-static int		readf(const int fd, char **str)
+static t_fd		*init_lst(t_fd **prems, const int fd)
 {
-	ssize_t	ret;
-	char	buf[BUFF_SIZE + 1];
-	char	*tmp;
+	t_fd			*temp;
 
-	if (*str == NULL && !(*str = ft_strnew(0)))
+	temp = *prems;
+	while (temp)
 	{
-		return (-1);
+		if (temp->fd == fd)
+			return (temp);
+		temp = temp->next;
 	}
+	if ((temp = (t_fd*)malloc(sizeof(*temp))) == NULL)
+		return (NULL);
+	temp->fd = fd;
+	temp->next = *prems;
+	if ((temp->str = ft_strnew(0)) == NULL)
+		return (NULL);
+	*prems = temp;
+	return (temp);
+}
+
+static int		readf(const int fd, char **str, char **ptr)
+{
+	ssize_t			ret;
+	char			*buf;
+	char			*tmp;
+
+	if ((buf = (char*)malloc(BUFF_SIZE + 1)) == NULL)
+		return (-1);
 	ret = (int)read(fd, buf, BUFF_SIZE);
 	if (ret > 0)
 	{
@@ -36,10 +54,15 @@ static int		readf(const int fd, char **str)
 		if (!(tmp = ft_strjoin(*str, buf)))
 			return (-1);
 		ft_free(*str);
+		ft_free(buf);
 		*str = tmp;
+		*ptr = ft_strchr(*str, '\n');
 	}
 	else if (ret == 0 && ft_strlen(*str) > 0)
-		return (-2);
+	{
+		if ((*ptr = ft_strchr(*str, '\n')) == NULL)
+			*ptr = *str + ft_strlen(*str);
+	}
 	else if (ret <= 0)
 		return (ret);
 	return (1);
@@ -47,38 +70,28 @@ static int		readf(const int fd, char **str)
 
 int				get_next_line(const int fd, char **line)
 {
-	static char	*str = NULL;
-	int			i;
-	char		*ptr;
+	static t_fd		*prems = NULL;
+	t_fd			*lst;
+	int				i;
+	char			*ptr;
 
-	if (fd < 0 || BUFF_SIZE < 0 || line == NULL)
+	if (fd < 0 || BUFF_SIZE <= 0 || line == NULL
+			|| ((lst = init_lst(&prems, fd)) == NULL))
 		return (-1);
-	ptr = (str == NULL ? NULL : ft_strchr(str, '\n'));
+	ptr = ft_strchr(lst->str, '\n');
 	while (ptr == NULL)
 	{
-		if (ptr == str || !ptr)
-		{
-			i = readf(fd, &str);
-			if (i == -1)
-				return (-1);
-			else if (i == 0)
-				return (0);
-		}
-		ptr = ft_strchr(str, '\n');
-		if (ptr == NULL && i == -2)
-		{
-			ptr = str + ft_strlen(str);
-		}
+		i = readf(fd, &lst->str, &ptr);
+		if (i == -1)
+			return (-1);
+		else if (i == 0)
+			return (0);
 	}
-	if ((*line = ft_strsub(str, 0, (ptr - str))) == NULL)
-	{
+	if ((*line = ft_strsub(lst->str, 0, (ptr - lst->str))) == NULL)
 		return (-1);
-	}
 	if (!(ptr = ft_strdup(ptr + (*ptr == '\0' ? 0 : 1))))
-	{
 		return (-1);
-	}
-	ft_free (str);
-	str = ptr;
+	ft_free(lst->str);
+	lst->str = ptr;
 	return (1);
 }
